@@ -1,0 +1,15 @@
+pandas
+numpy
+scipy
+scikit-learn
+duckdb
+pyarrow
+matplotlib
+requests
+joblib
+pytest
+pyyaml
+pybaseball
+scikit-learn
+joblib
+tabulate

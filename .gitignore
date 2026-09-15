@@ -1,0 +1,26 @@
+.venv/
+venv/
+
+# Python/runtime files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Temporary tournament files
+step6.log
+step6.pid
+step6.exit
+
+# Local data and model artifacts
+data/raw/**
+data/processed/**
+models/artifacts/*
+reports/figures/*
+reports/tables/*
+
+# Keep directory placeholders
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!models/artifacts/.gitkeep
+!reports/figures/.gitkeep
+!reports/tables/.gitkeep

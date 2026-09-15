@@ -1,0 +1,258 @@
+column,role,dtype,missing_count,description
+season,identifier/context,int64,0,"Pre-game historical aggregate, shifted to exclude the current appearance."
+game_date,identifier/context,datetime64[s],0,Pre-game context or historical feature.
+game_id,identifier/context,int64,0,Pre-game context or historical feature.
+pitcher_mlbam_id,identifier/context,int64,0,Pre-game context or historical feature.
+pitcher_name,feature,str,0,Pre-game context or historical feature.
+team,feature,str,0,Pre-game context or historical feature.
+opponent,identifier/context,str,0,Pre-game context or historical feature.
+home_away,identifier/context,str,0,Pre-game context or historical feature.
+pitcher_handedness,identifier/context,str,0,Pre-game context or historical feature.
+season_k_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+season_k_per_start,feature,float64,4844,"Pre-game historical aggregate, shifted to exclude the current appearance."
+season_pitches_per_start,feature,float64,4844,"Pre-game historical aggregate, shifted to exclude the current appearance."
+season_bf_per_start,feature,float64,4844,"Pre-game historical aggregate, shifted to exclude the current appearance."
+season_outs_per_start,feature,float64,4844,"Pre-game historical aggregate, shifted to exclude the current appearance."
+season_bb_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+season_hits_per_bf,feature,float64,4844,"Pre-game historical aggregate, shifted to exclude the current appearance."
+season_swstr_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+season_csw_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+season_called_strike_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+season_chase_rate,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+season_contact_rate,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+season_zone_contact_rate,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+season_first_pitch_strike_rate,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+season_strike_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+season_history_starts,feature,int64,0,"Pre-game historical aggregate, shifted to exclude the current appearance."
+season_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+last3_k_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last3_k_per_start,feature,float64,4844,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last3_pitches_per_start,feature,float64,4844,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last3_bf_per_start,feature,float64,4844,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last3_outs_per_start,feature,float64,4844,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last3_bb_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last3_hits_per_bf,feature,float64,4844,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last3_swstr_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last3_csw_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last3_called_strike_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last3_chase_rate,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last3_contact_rate,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last3_zone_contact_rate,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last3_first_pitch_strike_rate,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last3_strike_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last3_history_starts,feature,float64,0,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last3_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+last5_k_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last5_k_per_start,feature,float64,4844,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last5_pitches_per_start,feature,float64,4844,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last5_bf_per_start,feature,float64,4844,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last5_outs_per_start,feature,float64,4844,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last5_bb_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last5_hits_per_bf,feature,float64,4844,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last5_swstr_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last5_csw_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last5_called_strike_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last5_chase_rate,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last5_contact_rate,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last5_zone_contact_rate,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last5_first_pitch_strike_rate,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last5_strike_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last5_history_starts,feature,float64,0,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last5_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+last10_k_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last10_k_per_start,feature,float64,4844,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last10_pitches_per_start,feature,float64,4844,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last10_bf_per_start,feature,float64,4844,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last10_outs_per_start,feature,float64,4844,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last10_bb_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last10_hits_per_bf,feature,float64,4844,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last10_swstr_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last10_csw_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last10_called_strike_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last10_chase_rate,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last10_contact_rate,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last10_zone_contact_rate,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last10_first_pitch_strike_rate,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last10_strike_pct,feature,float64,4844,Historical rate calculated using observations strictly before the game date.
+last10_history_starts,feature,float64,0,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last10_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+pitches_median_before_game,feature,float64,1885,Pre-game context or historical feature.
+last30d_k_pct,feature,float64,6538,Historical rate calculated using observations strictly before the game date.
+last30d_k_per_start,feature,float64,6538,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last30d_pitches_per_start,feature,float64,6538,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last30d_bf_per_start,feature,float64,6538,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last30d_outs_per_start,feature,float64,6538,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last30d_bb_pct,feature,float64,6538,Historical rate calculated using observations strictly before the game date.
+last30d_hits_per_bf,feature,float64,6538,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last30d_swstr_pct,feature,float64,6538,Historical rate calculated using observations strictly before the game date.
+last30d_csw_pct,feature,float64,6538,Historical rate calculated using observations strictly before the game date.
+last30d_called_strike_pct,feature,float64,6538,Historical rate calculated using observations strictly before the game date.
+last30d_chase_rate,feature,float64,6538,Historical rate calculated using observations strictly before the game date.
+last30d_contact_rate,feature,float64,6538,Historical rate calculated using observations strictly before the game date.
+last30d_zone_contact_rate,feature,float64,6538,Historical rate calculated using observations strictly before the game date.
+last30d_first_pitch_strike_rate,feature,float64,6538,Historical rate calculated using observations strictly before the game date.
+last30d_strike_pct,feature,float64,6538,Historical rate calculated using observations strictly before the game date.
+last30d_history_starts,feature,float64,2425,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last30d_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+last60d_k_pct,feature,float64,5451,Historical rate calculated using observations strictly before the game date.
+last60d_k_per_start,feature,float64,5451,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last60d_pitches_per_start,feature,float64,5451,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last60d_bf_per_start,feature,float64,5451,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last60d_outs_per_start,feature,float64,5451,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last60d_bb_pct,feature,float64,5451,Historical rate calculated using observations strictly before the game date.
+last60d_hits_per_bf,feature,float64,5451,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last60d_swstr_pct,feature,float64,5451,Historical rate calculated using observations strictly before the game date.
+last60d_csw_pct,feature,float64,5451,Historical rate calculated using observations strictly before the game date.
+last60d_called_strike_pct,feature,float64,5451,Historical rate calculated using observations strictly before the game date.
+last60d_chase_rate,feature,float64,5451,Historical rate calculated using observations strictly before the game date.
+last60d_contact_rate,feature,float64,5451,Historical rate calculated using observations strictly before the game date.
+last60d_zone_contact_rate,feature,float64,5451,Historical rate calculated using observations strictly before the game date.
+last60d_first_pitch_strike_rate,feature,float64,5451,Historical rate calculated using observations strictly before the game date.
+last60d_strike_pct,feature,float64,5451,Historical rate calculated using observations strictly before the game date.
+last60d_history_starts,feature,float64,2099,"Pre-game historical aggregate, shifted to exclude the current appearance."
+last60d_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+pitcher_days_rest,feature,float64,850,Pre-game context or historical feature.
+pitcher_starts_before_game,feature,int64,0,Pre-game context or historical feature.
+month,feature,int32,0,Pre-game context or historical feature.
+home_indicator,feature,int64,0,Pre-game context or historical feature.
+pitches_previous_start,feature,float64,850,"Pre-game historical aggregate, shifted to exclude the current appearance."
+starts_reaching_90_before_game,feature,int64,0,Pre-game context or historical feature.
+starts_reaching_100_before_game,feature,int64,0,Pre-game context or historical feature.
+workload_trend_last3_vs_prior3,feature,float64,8531,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_CH_usage,feature,float64,1885,Pre-game context or historical feature.
+pitch_CH_velocity,feature,Float64,6522,Pre-game context or historical feature.
+pitch_CH_whiff_rate,feature,float64,6522,Historical rate calculated using observations strictly before the game date.
+pitch_CH_strike_rate,feature,float64,6522,Historical rate calculated using observations strictly before the game date.
+pitch_CH_csw_rate,feature,float64,6522,Historical rate calculated using observations strictly before the game date.
+pitch_CH_usage_change_vs_season,feature,float64,1885,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_CH_velocity_change_vs_season,feature,Float64,6522,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_CH_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+pitch_CU_usage,feature,float64,1885,Pre-game context or historical feature.
+pitch_CU_velocity,feature,Float64,11283,Pre-game context or historical feature.
+pitch_CU_whiff_rate,feature,float64,11283,Historical rate calculated using observations strictly before the game date.
+pitch_CU_strike_rate,feature,float64,11283,Historical rate calculated using observations strictly before the game date.
+pitch_CU_csw_rate,feature,float64,11283,Historical rate calculated using observations strictly before the game date.
+pitch_CU_usage_change_vs_season,feature,float64,1885,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_CU_velocity_change_vs_season,feature,Float64,11283,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_CU_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+pitch_EP_usage,feature,float64,1885,Pre-game context or historical feature.
+pitch_EP_velocity,feature,Float64,24283,Pre-game context or historical feature.
+pitch_EP_whiff_rate,feature,float64,24283,Historical rate calculated using observations strictly before the game date.
+pitch_EP_strike_rate,feature,float64,24283,Historical rate calculated using observations strictly before the game date.
+pitch_EP_csw_rate,feature,float64,24283,Historical rate calculated using observations strictly before the game date.
+pitch_EP_usage_change_vs_season,feature,float64,1885,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_EP_velocity_change_vs_season,feature,Float64,24283,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_EP_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+pitch_FC_usage,feature,float64,1885,Pre-game context or historical feature.
+pitch_FC_velocity,feature,Float64,14670,Pre-game context or historical feature.
+pitch_FC_whiff_rate,feature,float64,14670,Historical rate calculated using observations strictly before the game date.
+pitch_FC_strike_rate,feature,float64,14670,Historical rate calculated using observations strictly before the game date.
+pitch_FC_csw_rate,feature,float64,14670,Historical rate calculated using observations strictly before the game date.
+pitch_FC_usage_change_vs_season,feature,float64,1885,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_FC_velocity_change_vs_season,feature,Float64,14670,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_FC_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+pitch_FF_usage,feature,float64,1885,Pre-game context or historical feature.
+pitch_FF_velocity,feature,Float64,3345,Pre-game context or historical feature.
+pitch_FF_whiff_rate,feature,float64,3345,Historical rate calculated using observations strictly before the game date.
+pitch_FF_strike_rate,feature,float64,3345,Historical rate calculated using observations strictly before the game date.
+pitch_FF_csw_rate,feature,float64,3345,Historical rate calculated using observations strictly before the game date.
+pitch_FF_usage_change_vs_season,feature,float64,1885,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_FF_velocity_change_vs_season,feature,Float64,3345,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_FF_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+pitch_FO_usage,feature,float64,1885,Pre-game context or historical feature.
+pitch_FO_velocity,feature,Float64,24228,Pre-game context or historical feature.
+pitch_FO_whiff_rate,feature,float64,24228,Historical rate calculated using observations strictly before the game date.
+pitch_FO_strike_rate,feature,float64,24228,Historical rate calculated using observations strictly before the game date.
+pitch_FO_csw_rate,feature,float64,24228,Historical rate calculated using observations strictly before the game date.
+pitch_FO_usage_change_vs_season,feature,float64,1885,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_FO_velocity_change_vs_season,feature,Float64,24228,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_FO_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+pitch_FS_usage,feature,float64,1885,Pre-game context or historical feature.
+pitch_FS_velocity,feature,Float64,21344,Pre-game context or historical feature.
+pitch_FS_whiff_rate,feature,float64,21344,Historical rate calculated using observations strictly before the game date.
+pitch_FS_strike_rate,feature,float64,21344,Historical rate calculated using observations strictly before the game date.
+pitch_FS_csw_rate,feature,float64,21344,Historical rate calculated using observations strictly before the game date.
+pitch_FS_usage_change_vs_season,feature,float64,1885,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_FS_velocity_change_vs_season,feature,Float64,21344,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_FS_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+pitch_KC_usage,feature,float64,1885,Pre-game context or historical feature.
+pitch_KC_velocity,feature,Float64,21069,Pre-game context or historical feature.
+pitch_KC_whiff_rate,feature,float64,21069,Historical rate calculated using observations strictly before the game date.
+pitch_KC_strike_rate,feature,float64,21069,Historical rate calculated using observations strictly before the game date.
+pitch_KC_csw_rate,feature,float64,21069,Historical rate calculated using observations strictly before the game date.
+pitch_KC_usage_change_vs_season,feature,float64,1885,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_KC_velocity_change_vs_season,feature,Float64,21069,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_KC_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+pitch_KN_usage,feature,float64,1885,Pre-game context or historical feature.
+pitch_KN_velocity,feature,Float64,24253,Pre-game context or historical feature.
+pitch_KN_whiff_rate,feature,float64,24253,Historical rate calculated using observations strictly before the game date.
+pitch_KN_strike_rate,feature,float64,24253,Historical rate calculated using observations strictly before the game date.
+pitch_KN_csw_rate,feature,float64,24253,Historical rate calculated using observations strictly before the game date.
+pitch_KN_usage_change_vs_season,feature,float64,1885,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_KN_velocity_change_vs_season,feature,Float64,24253,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_KN_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+pitch_PO_usage,feature,float64,1885,Pre-game context or historical feature.
+pitch_PO_velocity,feature,Float64,24260,Pre-game context or historical feature.
+pitch_PO_whiff_rate,feature,float64,24260,Historical rate calculated using observations strictly before the game date.
+pitch_PO_strike_rate,feature,float64,24260,Historical rate calculated using observations strictly before the game date.
+pitch_PO_csw_rate,feature,float64,24260,Historical rate calculated using observations strictly before the game date.
+pitch_PO_usage_change_vs_season,feature,float64,1885,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_PO_velocity_change_vs_season,feature,Float64,24260,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_PO_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+pitch_SC_usage,feature,float64,1885,Pre-game context or historical feature.
+pitch_SC_velocity,feature,Float64,24284,Pre-game context or historical feature.
+pitch_SC_whiff_rate,feature,float64,24284,Historical rate calculated using observations strictly before the game date.
+pitch_SC_strike_rate,feature,float64,24284,Historical rate calculated using observations strictly before the game date.
+pitch_SC_csw_rate,feature,float64,24284,Historical rate calculated using observations strictly before the game date.
+pitch_SC_usage_change_vs_season,feature,float64,1885,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_SC_velocity_change_vs_season,feature,Float64,24284,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_SC_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+pitch_SI_usage,feature,float64,1885,Pre-game context or historical feature.
+pitch_SI_velocity,feature,Float64,9769,Pre-game context or historical feature.
+pitch_SI_whiff_rate,feature,float64,9769,Historical rate calculated using observations strictly before the game date.
+pitch_SI_strike_rate,feature,float64,9769,Historical rate calculated using observations strictly before the game date.
+pitch_SI_csw_rate,feature,float64,9769,Historical rate calculated using observations strictly before the game date.
+pitch_SI_usage_change_vs_season,feature,float64,1885,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_SI_velocity_change_vs_season,feature,Float64,9769,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_SI_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+pitch_SL_usage,feature,float64,1885,Pre-game context or historical feature.
+pitch_SL_velocity,feature,Float64,9940,Pre-game context or historical feature.
+pitch_SL_whiff_rate,feature,float64,9940,Historical rate calculated using observations strictly before the game date.
+pitch_SL_strike_rate,feature,float64,9940,Historical rate calculated using observations strictly before the game date.
+pitch_SL_csw_rate,feature,float64,9940,Historical rate calculated using observations strictly before the game date.
+pitch_SL_usage_change_vs_season,feature,float64,1885,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_SL_velocity_change_vs_season,feature,Float64,9940,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_SL_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+pitch_ST_usage,feature,float64,1885,Pre-game context or historical feature.
+pitch_ST_velocity,feature,Float64,17939,Pre-game context or historical feature.
+pitch_ST_whiff_rate,feature,float64,17939,Historical rate calculated using observations strictly before the game date.
+pitch_ST_strike_rate,feature,float64,17939,Historical rate calculated using observations strictly before the game date.
+pitch_ST_csw_rate,feature,float64,17939,Historical rate calculated using observations strictly before the game date.
+pitch_ST_usage_change_vs_season,feature,float64,1885,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_ST_velocity_change_vs_season,feature,Float64,17939,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_ST_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+pitch_SV_usage,feature,float64,1885,Pre-game context or historical feature.
+pitch_SV_velocity,feature,Float64,23597,Pre-game context or historical feature.
+pitch_SV_whiff_rate,feature,float64,23597,Historical rate calculated using observations strictly before the game date.
+pitch_SV_strike_rate,feature,float64,23597,Historical rate calculated using observations strictly before the game date.
+pitch_SV_csw_rate,feature,float64,23597,Historical rate calculated using observations strictly before the game date.
+pitch_SV_usage_change_vs_season,feature,float64,1885,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_SV_velocity_change_vs_season,feature,Float64,23597,"Pre-game historical aggregate, shifted to exclude the current appearance."
+pitch_SV_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+opponent_team_k_pct,feature,float64,150,Historical rate calculated using observations strictly before the game date.
+opponent_team_bb_pct,feature,float64,150,Historical rate calculated using observations strictly before the game date.
+opponent_team_swstr_pct,feature,float64,150,Historical rate calculated using observations strictly before the game date.
+opponent_team_contact_pct,feature,float64,150,Historical rate calculated using observations strictly before the game date.
+opponent_team_chase_pct,feature,float64,150,Historical rate calculated using observations strictly before the game date.
+opponent_team_history_games,feature,int64,0,Pre-game context or historical feature.
+opponent_team_insufficient_history,feature,int64,0,Flag that the minimum historical sample was not available before this game.
+opponent_k_pct_vs_RHP,feature,float64,305,Pre-game context or historical feature.
+opponent_contact_pct_vs_RHP,feature,float64,305,Pre-game context or historical feature.
+opponent_R_history_games,feature,float64,155,Pre-game context or historical feature.
+opponent_k_pct_vs_LHP,feature,float64,5351,Pre-game context or historical feature.
+opponent_contact_pct_vs_LHP,feature,float64,5351,Pre-game context or historical feature.
+opponent_L_history_games,feature,float64,5201,Pre-game context or historical feature.
+strikeouts,target,int64,0,Post-game target; never used as an input feature.
+outs_recorded,target,int64,0,Post-game target; never used as an input feature.
+pitches_thrown,target,int64,0,Post-game target; never used as an input feature.
+batters_faced,target,int64,0,Post-game target; never used as an input feature.

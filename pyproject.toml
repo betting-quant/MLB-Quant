@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mlb-quant"
+version = "0.1.0"
+description = "Time-aware MLB starting pitcher strikeout and outs recorded research"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+	"pandas",
+	"pyarrow",
+	"pybaseball",
+]
+
+[project.scripts]
+mlb-quant-ingest = "mlb_quant.data.cli:main"
+mlb-quant-scale = "mlb_quant.data.scale:main"
+mlb-quant-features = "mlb_quant.features.cli:main"
+mlb-quant-models = "mlb_quant.models.cli:main"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

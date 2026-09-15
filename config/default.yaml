@@ -1,0 +1,18 @@
+project:
+  name: mlb-quant
+  timezone: UTC
+
+data:
+  raw_path: data/raw
+  processed_path: data/processed
+  database_path: data/processed/mlb_quant.duckdb
+
+modeling:
+  prediction_horizon_days: 0
+  minimum_starts: 10
+  random_seed: 42
+
+backtesting:
+  split_method: expanding_window
+  embargo_days: 0
+  minimum_training_days: 365

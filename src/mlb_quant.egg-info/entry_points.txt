@@ -1,0 +1,4 @@
+[console_scripts]
+mlb-quant-features = mlb_quant.features.cli:main
+mlb-quant-ingest = mlb_quant.data.cli:main
+mlb-quant-scale = mlb_quant.data.scale:main
