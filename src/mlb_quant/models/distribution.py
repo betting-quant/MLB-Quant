@@ -20,7 +20,7 @@ ARTIFACT_PATH = Path("models/artifacts/mlb_distribution_v0_1.joblib")
 
 TARGET_CONFIG = {
     "strikeouts": {
-        "model": "ensemble",
+     "model": "hist_gradient_boosting",
         "lines": np.arange(2.5, 10.6, 1.0),
         "min_value": 0,
         "max_value": 20,

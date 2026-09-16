@@ -11,7 +11,7 @@
     "batters_faced": "hist_gradient_boosting",
     "outs_recorded": "hist_gradient_boosting",
     "pitches_thrown": "hist_gradient_boosting",
-    "strikeouts": "ensemble"
+    "strikeouts": "hist_gradient_boosting"
   },
   "feature_columns": [
     "season_k_pct",
@@ -206,7 +206,12 @@
     "pitch_PO_velocity_change_vs_season",
     "pitch_PO_insufficient_history",
     "pitch_SC_usage",
+    "pitch_SC_velocity",
+    "pitch_SC_whiff_rate",
+    "pitch_SC_strike_rate",
+    "pitch_SC_csw_rate",
     "pitch_SC_usage_change_vs_season",
+    "pitch_SC_velocity_change_vs_season",
     "pitch_SC_insufficient_history",
     "pitch_SI_usage",
     "pitch_SI_velocity",

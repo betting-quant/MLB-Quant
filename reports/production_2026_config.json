@@ -1,0 +1,87 @@
+{
+  "version": "production_2026_v0_1",
+  "purpose": "Forward-looking 2026 MLB pitcher prop prediction",
+  "architecture_selection": "Frozen from chronological 2021-2024 development and 2025 holdout evaluation",
+  "production_training_through": 2025,
+  "feature_columns_frozen_from_evaluation": true,
+  "feature_count": 244,
+  "point_models": {
+    "strikeouts": {
+      "winner": "hist_gradient_boosting",
+      "artifact": "models/artifacts/mlb_k_quant_production_2026.joblib",
+      "training_seasons": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "training_rows": 24284,
+      "feature_count": 244
+    },
+    "outs_recorded": {
+      "winner": "hist_gradient_boosting",
+      "artifact": "models/artifacts/mlb_outs_quant_production_2026.joblib",
+      "training_seasons": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "training_rows": 24284,
+      "feature_count": 244
+    },
+    "batters_faced": {
+      "winner": "hist_gradient_boosting",
+      "artifact": "models/artifacts/mlb_bf_quant_production_2026.joblib",
+      "training_seasons": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "training_rows": 24284,
+      "feature_count": 244
+    },
+    "pitches_thrown": {
+      "winner": "hist_gradient_boosting",
+      "artifact": "models/artifacts/mlb_pitches_quant_production_2026.joblib",
+      "training_seasons": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "training_rows": 24284,
+      "feature_count": 244
+    }
+  },
+  "distributions": {
+    "strikeouts": {
+      "method": "poisson",
+      "point_model": "hist_gradient_boosting",
+      "residual_rows": 19426,
+      "residual_seasons": [
+        2022,
+        2023,
+        2024,
+        2025
+      ]
+    },
+    "outs_recorded": {
+      "method": "conditional_empirical",
+      "point_model": "hist_gradient_boosting",
+      "residual_rows": 19426,
+      "residual_seasons": [
+        2022,
+        2023,
+        2024,
+        2025
+      ]
+    }
+  },
+  "distribution_artifact": "models/artifacts/mlb_distribution_production_2026.joblib"
+}

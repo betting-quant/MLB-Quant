@@ -223,8 +223,14 @@ def run_ablation(frame: pd.DataFrame) -> pd.DataFrame:
     return pd.concat(rows, ignore_index=True)
 
 
-def _train_final_model(frame: pd.DataFrame, target: str, model_name: str, columns: list[str]):
-    train = frame[frame.season <= 2024]
+def _train_final_model(
+    frame: pd.DataFrame,
+    target: str,
+    model_name: str,
+    columns: list[str],
+    max_train_season: int = 2024,
+):
+    train = frame[frame.season <= max_train_season]
     if model_name == "naive":
         return {"type": "naive", "fallback": float(train[target].mean()), "feature": {"strikeouts": "season_k_per_start", "outs_recorded": "season_outs_per_start", "batters_faced": "season_bf_per_start", "pitches_thrown": "season_pitches_per_start"}[target]}
     if model_name == "decomposed":

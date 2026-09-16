@@ -99,3 +99,224 @@ def test_raw_current_game_velocity_totals_do_not_leak_into_features():
     assert "velocity_sum" not in features.columns
     assert "velocity_count" not in features.columns
 
+def _synthetic_type_metrics():
+    return pd.DataFrame(
+        {
+            "season": [
+                2024, 2024,
+                2024, 2024,
+                2024,
+            ],
+            "game_date": pd.to_datetime(
+                [
+                    "2024-04-01", "2024-04-01",
+                    "2024-04-05", "2024-04-05",
+                    "2024-04-10",
+                ]
+            ),
+            "game_id": [1, 1, 2, 2, 3],
+            "pitcher_mlbam_id": [10, 10, 10, 10, 10],
+            "pitch_type": ["FF", "CH", "FF", "CH", "FF"],
+            "pitch_count": [50, 30, 55, 35, 100],
+            "velocity_sum": [
+                4750, 2550,
+                5225, 2975,
+                9500,
+            ],
+            "velocity_count": [50, 30, 55, 35, 100],
+            "whiff_count": [8, 5, 9, 6, 99],
+            "strike_count": [32, 18, 35, 20, 99],
+            "csw_count": [14, 9, 15, 10, 99],
+        }
+    )
+
+
+def _synthetic_team_metrics():
+    return pd.DataFrame(
+        {
+            "season": [
+                2024, 2024,
+                2024, 2024,
+                2024,
+            ],
+            "game_date": pd.to_datetime(
+                [
+                    "2024-04-01", "2024-04-01",
+                    "2024-04-05", "2024-04-05",
+                    "2024-04-10",
+                ]
+            ),
+            "game_id": [1, 1, 2, 2, 3],
+            "team": ["BBB"] * 5,
+            "opponent_hand": ["R", "L", "R", "L", "R"],
+            "team_bf": [30, 10, 28, 12, 100],
+            "k_count": [8, 2, 7, 3, 99],
+            "bb_count": [3, 1, 2, 1, 99],
+            "pitches": [110, 40, 105, 45, 999],
+            "whiff_count": [12, 4, 11, 5, 99],
+            "swing_count": [55, 20, 52, 22, 99],
+            "contact_count": [43, 16, 41, 17, 99],
+            "chase_swing_count": [12, 4, 11, 5, 99],
+            "chase_pitch_count": [30, 10, 28, 12, 99],
+        }
+    )
+
+
+def test_current_game_pitch_type_availability_cannot_change_pregame_arsenal_features():
+    """
+    Regression test:
+    the pitch types a pitcher happens to throw in the CURRENT game
+    must not control which pregame arsenal features exist.
+    """
+    appearances, metrics = _synthetic_inputs()
+
+    original_types = _synthetic_type_metrics()
+
+    mutated_types = original_types.copy()
+
+    # Completely change the current game's observed arsenal.
+    mutated_types.loc[
+        mutated_types["game_id"] == 3,
+        "pitch_type",
+    ] = "SL"
+
+    mutated_types.loc[
+        mutated_types["game_id"] == 3,
+        [
+            "pitch_count",
+            "velocity_sum",
+            "velocity_count",
+            "whiff_count",
+            "strike_count",
+            "csw_count",
+        ],
+    ] = [1, 70, 1, 0, 0, 0]
+
+    original = build_point_in_time_features(
+        appearances,
+        metrics,
+        type_metrics=original_types,
+        minimum_starts=1,
+    )
+
+    mutated = build_point_in_time_features(
+        appearances,
+        metrics,
+        type_metrics=mutated_types,
+        minimum_starts=1,
+    )
+
+    arsenal_columns = [
+        column
+        for column in original.columns
+        if column.startswith("pitch_")
+    ]
+
+    original_game_three = (
+        original.loc[
+            original["game_id"] == 3,
+            arsenal_columns,
+        ]
+        .reset_index(drop=True)
+    )
+
+    mutated_game_three = (
+        mutated.loc[
+            mutated["game_id"] == 3,
+            arsenal_columns,
+        ]
+        .reset_index(drop=True)
+    )
+
+    pd.testing.assert_frame_equal(
+        original_game_three,
+        mutated_game_three,
+    )
+
+
+def test_current_game_opponent_handedness_cannot_change_pregame_opponent_features():
+    """
+    Regression test:
+    which handedness an opponent actually faces in the CURRENT game
+    must not alter that game's pregame opponent-history features.
+    """
+    appearances, metrics = _synthetic_inputs()
+
+    original_team = _synthetic_team_metrics()
+
+    mutated_team = original_team.copy()
+
+    # Change the current game from facing an RHP to an LHP and
+    # radically alter all current-game statistics.
+    current = mutated_team["game_id"] == 3
+
+    mutated_team.loc[
+        current,
+        "opponent_hand",
+    ] = "L"
+
+    mutated_team.loc[
+        current,
+        [
+            "team_bf",
+            "k_count",
+            "bb_count",
+            "pitches",
+            "whiff_count",
+            "swing_count",
+            "contact_count",
+            "chase_swing_count",
+            "chase_pitch_count",
+        ],
+    ] = [
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        1,
+    ]
+
+    original = build_point_in_time_features(
+        appearances,
+        metrics,
+        team_metrics=original_team,
+        minimum_starts=1,
+    )
+
+    mutated = build_point_in_time_features(
+        appearances,
+        metrics,
+        team_metrics=mutated_team,
+        minimum_starts=1,
+    )
+
+    opponent_columns = [
+        column
+        for column in original.columns
+        if column.startswith("opponent_")
+    ]
+
+    original_game_three = (
+        original.loc[
+            original["game_id"] == 3,
+            opponent_columns,
+        ]
+        .reset_index(drop=True)
+    )
+
+    mutated_game_three = (
+        mutated.loc[
+            mutated["game_id"] == 3,
+            opponent_columns,
+        ]
+        .reset_index(drop=True)
+    )
+
+    pd.testing.assert_frame_equal(
+        original_game_three,
+        mutated_game_three,
+    )

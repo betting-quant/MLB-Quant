@@ -306,91 +306,628 @@ def _pitcher_features(appearances: pd.DataFrame, pitcher_metrics: pd.DataFrame, 
     return output
 
 
-def _arsenal_features(frame: pd.DataFrame, type_metrics: pd.DataFrame) -> pd.DataFrame:
+def _arsenal_features(
+    frame: pd.DataFrame,
+    type_metrics: pd.DataFrame,
+) -> pd.DataFrame:
+    """Build pitcher arsenal features using only information before each game.
+
+    Every modeled pitch type receives a row for every starter appearance.
+    This prevents current-game pitch-type usage from controlling feature
+    availability or missingness.
+    """
     output = frame.copy()
+
     if type_metrics.empty:
         return output
-    key = ["season", "game_date", "game_id", "pitcher_mlbam_id"]
-    type_metrics = type_metrics.copy()
-    type_metrics["game_date"] = pd.to_datetime(type_metrics["game_date"])
-    type_metrics = type_metrics.sort_values(["pitcher_mlbam_id", "season", "pitch_type", "game_date", "game_id"])
-    grouped = type_metrics.groupby(["pitcher_mlbam_id", "season", "pitch_type"], sort=False)
+
+    key = [
+        "season",
+        "game_date",
+        "game_id",
+        "pitcher_mlbam_id",
+    ]
+
+    appearances = (
+        output[key]
+        .drop_duplicates()
+        .copy()
+    )
+
+    appearances["game_date"] = pd.to_datetime(
+        appearances["game_date"]
+    )
+
+    pitch_types = pd.DataFrame(
+        {"pitch_type": list(PITCH_TYPES)}
+    )
+
+    appearances["_join"] = 1
+    pitch_types["_join"] = 1
+
+    scaffold = (
+        appearances
+        .merge(pitch_types, on="_join")
+        .drop(columns="_join")
+    )
+
+    metrics = type_metrics.copy()
+    metrics["game_date"] = pd.to_datetime(
+        metrics["game_date"]
+    )
+
+    metric_columns = list(PITCH_USE_COLUMNS)
+
+    metrics = (
+        metrics.groupby(
+            key + ["pitch_type"],
+            as_index=False,
+        )[metric_columns]
+        .sum()
+    )
+
+    complete = scaffold.merge(
+        metrics,
+        on=key + ["pitch_type"],
+        how="left",
+    )
+
+    complete[metric_columns] = (
+        complete[metric_columns]
+        .fillna(0)
+    )
+
+    complete = complete.sort_values(
+        [
+            "pitcher_mlbam_id",
+            "season",
+            "pitch_type",
+            "game_date",
+            "game_id",
+        ]
+    ).reset_index(drop=True)
+
+    grouped = complete.groupby(
+        [
+            "pitcher_mlbam_id",
+            "season",
+            "pitch_type",
+        ],
+        sort=False,
+    )
+
     for column in PITCH_USE_COLUMNS:
-        type_metrics[f"prior_{column}"] = grouped[column].transform(lambda values: values.cumsum().shift(1))
-        type_metrics[f"prior3_{column}"] = grouped[column].transform(
-            lambda values: values.shift(1).rolling(3, min_periods=1).sum()
+        complete[f"prior_{column}"] = (
+            grouped[column]
+            .transform(
+                lambda values:
+                values.shift(1).cumsum()
+            )
         )
-    pitcher_totals = frame.sort_values(["pitcher_mlbam_id", "season", "game_date", "game_id"]).copy()
-    pitcher_totals["prior_pitches"] = pitcher_totals.groupby(["pitcher_mlbam_id", "season"])["pitches_thrown"].transform(lambda values: values.cumsum().shift(1))
-    pitcher_totals["prior3_pitches"] = pitcher_totals.groupby(["pitcher_mlbam_id", "season"])["pitches_thrown"].transform(lambda values: values.shift(1).rolling(3, min_periods=1).sum())
-    prior_pitches = pitcher_totals[key + ["prior_pitches", "prior3_pitches"]]
-    type_wide = type_metrics.set_index(key + ["pitch_type"])[[f"prior_{c}" for c in PITCH_USE_COLUMNS] + [f"prior3_{c}" for c in PITCH_USE_COLUMNS]].unstack("pitch_type")
-    type_wide.columns = [f"{metric}_{pitch_type}" for metric, pitch_type in type_wide.columns]
+
+        complete[f"prior3_{column}"] = (
+            grouped[column]
+            .transform(
+                lambda values:
+                values.shift(1)
+                .rolling(
+                    3,
+                    min_periods=1,
+                )
+                .sum()
+            )
+        )
+
+    pitcher_totals = output.sort_values(
+        [
+            "pitcher_mlbam_id",
+            "season",
+            "game_date",
+            "game_id",
+        ]
+    ).copy()
+
+    pitcher_totals["prior_pitches"] = (
+        pitcher_totals.groupby(
+            [
+                "pitcher_mlbam_id",
+                "season",
+            ]
+        )["pitches_thrown"]
+        .transform(
+            lambda values:
+            values.shift(1).cumsum()
+        )
+    )
+
+    pitcher_totals["prior3_pitches"] = (
+        pitcher_totals.groupby(
+            [
+                "pitcher_mlbam_id",
+                "season",
+            ]
+        )["pitches_thrown"]
+        .transform(
+            lambda values:
+            values.shift(1)
+            .rolling(
+                3,
+                min_periods=1,
+            )
+            .sum()
+        )
+    )
+
+    prior_pitches = pitcher_totals[
+        key
+        + [
+            "prior_pitches",
+            "prior3_pitches",
+        ]
+    ]
+
+    prior_columns = (
+        [f"prior_{c}" for c in PITCH_USE_COLUMNS]
+        + [
+            f"prior3_{c}"
+            for c in PITCH_USE_COLUMNS
+        ]
+    )
+
+    type_wide = (
+        complete
+        .set_index(
+            key + ["pitch_type"]
+        )[prior_columns]
+        .unstack("pitch_type")
+    )
+
+    type_wide.columns = [
+        f"{metric}_{pitch_type}"
+        for metric, pitch_type
+        in type_wide.columns
+    ]
+
     type_wide = type_wide.reset_index()
-    merged = output.merge(type_wide, on=key, how="left")
-    merged = merged.merge(prior_pitches, on=key, how="left")
+
+    merged = output.merge(
+        type_wide,
+        on=key,
+        how="left",
+    )
+
+    merged = merged.merge(
+        prior_pitches,
+        on=key,
+        how="left",
+    )
+
     additions = {}
+
     for pitch_type in PITCH_TYPES:
-        totals = {column: merged[f"prior_{column}_{pitch_type}"].fillna(0) if f"prior_{column}_{pitch_type}" in merged else pd.Series(0, index=merged.index) for column in PITCH_USE_COLUMNS}
-        additions[f"pitch_{pitch_type}_usage"] = _rate(totals["pitch_count"], merged["prior_pitches"])
-        additions[f"pitch_{pitch_type}_velocity"] = _rate(totals["velocity_sum"], totals["velocity_count"])
-        additions[f"pitch_{pitch_type}_whiff_rate"] = _rate(totals["whiff_count"], totals["pitch_count"])
-        additions[f"pitch_{pitch_type}_strike_rate"] = _rate(totals["strike_count"], totals["pitch_count"])
-        additions[f"pitch_{pitch_type}_csw_rate"] = _rate(totals["csw_count"], totals["pitch_count"])
-        recent_pitch_count = merged.get(f"prior3_pitch_count_{pitch_type}", pd.Series(0.0, index=merged.index)).fillna(0)
-        recent_velocity = _rate(
-            merged.get(f"prior3_velocity_sum_{pitch_type}", pd.Series(0.0, index=merged.index)),
-            merged.get(f"prior3_velocity_count_{pitch_type}", pd.Series(0.0, index=merged.index)),
+        totals = {
+            column: merged.get(
+                f"prior_{column}_{pitch_type}",
+                pd.Series(
+                    0.0,
+                    index=merged.index,
+                ),
+            ).fillna(0)
+            for column in PITCH_USE_COLUMNS
+        }
+
+        additions[
+            f"pitch_{pitch_type}_usage"
+        ] = _rate(
+            totals["pitch_count"],
+            merged["prior_pitches"],
         )
-        season_velocity = additions[f"pitch_{pitch_type}_velocity"]
-        recent_usage = _rate(recent_pitch_count, merged["prior3_pitches"].replace(0, np.nan))
-        additions[f"pitch_{pitch_type}_usage_change_vs_season"] = recent_usage - additions[f"pitch_{pitch_type}_usage"]
-        additions[f"pitch_{pitch_type}_velocity_change_vs_season"] = recent_velocity - season_velocity
-        additions[f"pitch_{pitch_type}_insufficient_history"] = (totals["pitch_count"] < 20).astype(int)
-    return pd.concat([output.reset_index(drop=True), pd.DataFrame(additions)], axis=1)
+
+        additions[
+            f"pitch_{pitch_type}_velocity"
+        ] = _rate(
+            totals["velocity_sum"],
+            totals["velocity_count"],
+        )
+
+        additions[
+            f"pitch_{pitch_type}_whiff_rate"
+        ] = _rate(
+            totals["whiff_count"],
+            totals["pitch_count"],
+        )
+
+        additions[
+            f"pitch_{pitch_type}_strike_rate"
+        ] = _rate(
+            totals["strike_count"],
+            totals["pitch_count"],
+        )
+
+        additions[
+            f"pitch_{pitch_type}_csw_rate"
+        ] = _rate(
+            totals["csw_count"],
+            totals["pitch_count"],
+        )
+
+        recent_pitch_count = merged.get(
+            f"prior3_pitch_count_{pitch_type}",
+            pd.Series(
+                0.0,
+                index=merged.index,
+            ),
+        ).fillna(0)
+
+        recent_velocity = _rate(
+            merged.get(
+                f"prior3_velocity_sum_{pitch_type}",
+                pd.Series(
+                    0.0,
+                    index=merged.index,
+                ),
+            ),
+            merged.get(
+                f"prior3_velocity_count_{pitch_type}",
+                pd.Series(
+                    0.0,
+                    index=merged.index,
+                ),
+            ),
+        )
+
+        season_velocity = additions[
+            f"pitch_{pitch_type}_velocity"
+        ]
+
+        recent_usage = _rate(
+            recent_pitch_count,
+            merged["prior3_pitches"].replace(
+                0,
+                np.nan,
+            ),
+        )
+
+        additions[
+            f"pitch_{pitch_type}_usage_change_vs_season"
+        ] = (
+            recent_usage
+            - additions[
+                f"pitch_{pitch_type}_usage"
+            ]
+        )
+
+        additions[
+            f"pitch_{pitch_type}_velocity_change_vs_season"
+        ] = (
+            recent_velocity
+            - season_velocity
+        )
+
+        additions[
+            f"pitch_{pitch_type}_insufficient_history"
+        ] = (
+            totals["pitch_count"] < 20
+        ).astype(int)
+
+    return pd.concat(
+        [
+            output.reset_index(drop=True),
+            pd.DataFrame(additions),
+        ],
+        axis=1,
+    )
 
 
-def _opponent_features(frame: pd.DataFrame, team_metrics: pd.DataFrame, minimum_games: int) -> pd.DataFrame:
+def _opponent_features(
+    frame: pd.DataFrame,
+    team_metrics: pd.DataFrame,
+    minimum_games: int,
+) -> pd.DataFrame:
+    """Build opponent features strictly from games before the current game.
+
+    A complete R/L scaffold prevents current-game pitcher handedness usage
+    from determining which historical features are present.
+    """
     output = frame.copy()
+
     if team_metrics.empty:
         return output
-    team_metrics = team_metrics.copy()
-    team_metrics["game_date"] = pd.to_datetime(team_metrics["game_date"])
-    metrics = ["team_bf", "k_count", "bb_count", "pitches", "whiff_count", "swing_count", "contact_count", "chase_swing_count", "chase_pitch_count"]
-    base = team_metrics.groupby(["team", "season", "game_date", "game_id"], as_index=False)[metrics].sum()
-    base = base.sort_values(["team", "season", "game_date", "game_id"])
-    grouped = base.groupby(["team", "season"], sort=False)
-    for metric in metrics:
-        base[f"prior_{metric}"] = grouped[metric].transform(lambda values: values.cumsum().shift(1))
-    base["prior_games"] = grouped["game_id"].cumcount()
-    hand = team_metrics.groupby(["team", "season", "game_date", "game_id", "opponent_hand"], as_index=False)[metrics].sum()
-    hand = hand.sort_values(["team", "season", "opponent_hand", "game_date", "game_id"])
-    hand_grouped = hand.groupby(["team", "season", "opponent_hand"], sort=False)
-    for metric in metrics:
-        hand[f"prior_{metric}"] = hand_grouped[metric].transform(lambda values: values.cumsum().shift(1))
-    hand["prior_games"] = hand_grouped["game_id"].cumcount()
-    merge_keys = ["season", "game_date", "game_id", "team"]
-    opponent = output[["season", "game_date", "game_id", "opponent"]].rename(columns={"opponent": "team"})
-    merged = opponent.merge(base[merge_keys + [f"prior_{m}" for m in metrics] + ["prior_games"]], on=merge_keys, how="left")
-    hand_wide = hand.set_index(merge_keys + ["opponent_hand"])[[f"prior_{m}" for m in metrics] + ["prior_games"]].unstack("opponent_hand")
-    hand_wide.columns = [f"{metric}_{hand_name}" for metric, hand_name in hand_wide.columns]
-    merged = merged.merge(hand_wide.reset_index(), on=merge_keys, how="left")
-    additions = {}
-    denom = lambda name: merged[f"prior_{name}"].fillna(0)
-    additions["opponent_team_k_pct"] = _rate(denom("k_count"), denom("team_bf"))
-    additions["opponent_team_bb_pct"] = _rate(denom("bb_count"), denom("team_bf"))
-    additions["opponent_team_swstr_pct"] = _rate(denom("whiff_count"), denom("pitches"))
-    additions["opponent_team_contact_pct"] = _rate(denom("contact_count"), denom("swing_count"))
-    additions["opponent_team_chase_pct"] = _rate(denom("chase_swing_count"), denom("chase_pitch_count"))
-    additions["opponent_team_history_games"] = merged["prior_games"]
-    additions["opponent_team_insufficient_history"] = (merged["prior_games"].fillna(0) < minimum_games).astype(int)
-    for hand in ("R", "L"):
-        hand_denom = lambda name: merged.get(f"prior_{name}_{hand}", pd.Series(np.nan, index=merged.index))
-        additions[f"opponent_k_pct_vs_{hand}HP"] = _rate(hand_denom("k_count"), hand_denom("team_bf"))
-        additions[f"opponent_contact_pct_vs_{hand}HP"] = _rate(hand_denom("contact_count"), hand_denom("swing_count"))
-        additions[f"opponent_{hand}_history_games"] = merged.get(f"prior_games_{hand}", pd.Series(np.nan, index=merged.index))
-    return pd.concat([output.reset_index(drop=True), pd.DataFrame(additions)], axis=1)
 
+    metrics = [
+        "team_bf",
+        "k_count",
+        "bb_count",
+        "pitches",
+        "whiff_count",
+        "swing_count",
+        "contact_count",
+        "chase_swing_count",
+        "chase_pitch_count",
+    ]
+
+    merge_keys = [
+        "season",
+        "game_date",
+        "game_id",
+        "team",
+    ]
+
+    opponent_games = (
+        output[
+            [
+                "season",
+                "game_date",
+                "game_id",
+                "opponent",
+            ]
+        ]
+        .rename(
+            columns={"opponent": "team"}
+        )
+        .drop_duplicates()
+    )
+
+    opponent_games["game_date"] = (
+        pd.to_datetime(
+            opponent_games["game_date"]
+        )
+    )
+
+    hands = pd.DataFrame(
+        {"opponent_hand": ["R", "L"]}
+    )
+
+    opponent_games["_join"] = 1
+    hands["_join"] = 1
+
+    scaffold = (
+        opponent_games
+        .merge(hands, on="_join")
+        .drop(columns="_join")
+    )
+
+    actual = team_metrics.copy()
+
+    actual["game_date"] = pd.to_datetime(
+        actual["game_date"]
+    )
+
+    actual = (
+        actual.groupby(
+            merge_keys + ["opponent_hand"],
+            as_index=False,
+        )[metrics]
+        .sum()
+    )
+
+    complete = scaffold.merge(
+        actual,
+        on=merge_keys + ["opponent_hand"],
+        how="left",
+    )
+
+    complete[metrics] = (
+        complete[metrics]
+        .fillna(0)
+    )
+
+    # Overall team history.
+    base = (
+        complete.groupby(
+            merge_keys,
+            as_index=False,
+        )[metrics]
+        .sum()
+    )
+
+    base = base.sort_values(
+        [
+            "team",
+            "season",
+            "game_date",
+            "game_id",
+        ]
+    )
+
+    grouped = base.groupby(
+        ["team", "season"],
+        sort=False,
+    )
+
+    for metric in metrics:
+        base[f"prior_{metric}"] = (
+            grouped[metric]
+            .transform(
+                lambda values:
+                values.shift(1).cumsum()
+            )
+        )
+
+    base["prior_games"] = (
+        grouped["game_id"].cumcount()
+    )
+
+    # Handedness-specific history.
+    hand = complete.sort_values(
+        [
+            "team",
+            "season",
+            "opponent_hand",
+            "game_date",
+            "game_id",
+        ]
+    ).copy()
+
+    hand["hand_game_observed"] = (
+        hand["team_bf"] > 0
+    ).astype(int)
+
+    hand_grouped = hand.groupby(
+        [
+            "team",
+            "season",
+            "opponent_hand",
+        ],
+        sort=False,
+    )
+
+    for metric in metrics:
+        hand[f"prior_{metric}"] = (
+            hand_grouped[metric]
+            .transform(
+                lambda values:
+                values.shift(1).cumsum()
+            )
+        )
+
+    hand["prior_games"] = (
+        hand_grouped["hand_game_observed"]
+        .transform(
+            lambda values:
+            values.shift(1)
+            .fillna(0)
+            .cumsum()
+        )
+    )
+
+    opponent = (
+        output[
+            [
+                "season",
+                "game_date",
+                "game_id",
+                "opponent",
+            ]
+        ]
+        .rename(
+            columns={"opponent": "team"}
+        )
+    )
+
+    merged = opponent.merge(
+        base[
+            merge_keys
+            + [
+                f"prior_{m}"
+                for m in metrics
+            ]
+            + ["prior_games"]
+        ],
+        on=merge_keys,
+        how="left",
+    )
+
+    hand_wide = (
+        hand.set_index(
+            merge_keys + ["opponent_hand"]
+        )[
+            [
+                f"prior_{m}"
+                for m in metrics
+            ]
+            + ["prior_games"]
+        ]
+        .unstack("opponent_hand")
+    )
+
+    hand_wide.columns = [
+        f"{metric}_{hand_name}"
+        for metric, hand_name
+        in hand_wide.columns
+    ]
+
+    merged = merged.merge(
+        hand_wide.reset_index(),
+        on=merge_keys,
+        how="left",
+    )
+
+    additions = {}
+
+    def denom(name):
+        return merged[
+            f"prior_{name}"
+        ].fillna(0)
+
+    additions["opponent_team_k_pct"] = _rate(
+        denom("k_count"),
+        denom("team_bf"),
+    )
+
+    additions["opponent_team_bb_pct"] = _rate(
+        denom("bb_count"),
+        denom("team_bf"),
+    )
+
+    additions["opponent_team_swstr_pct"] = _rate(
+        denom("whiff_count"),
+        denom("pitches"),
+    )
+
+    additions["opponent_team_contact_pct"] = _rate(
+        denom("contact_count"),
+        denom("swing_count"),
+    )
+
+    additions["opponent_team_chase_pct"] = _rate(
+        denom("chase_swing_count"),
+        denom("chase_pitch_count"),
+    )
+
+    additions[
+        "opponent_team_history_games"
+    ] = merged["prior_games"]
+
+    additions[
+        "opponent_team_insufficient_history"
+    ] = (
+        merged["prior_games"]
+        .fillna(0)
+        < minimum_games
+    ).astype(int)
+
+    for hand_name in ("R", "L"):
+        def hand_denom(name):
+            return merged.get(
+                f"prior_{name}_{hand_name}",
+                pd.Series(
+                    np.nan,
+                    index=merged.index,
+                ),
+            )
+
+        additions[
+            f"opponent_k_pct_vs_{hand_name}HP"
+        ] = _rate(
+            hand_denom("k_count"),
+            hand_denom("team_bf"),
+        )
+
+        additions[
+            f"opponent_contact_pct_vs_{hand_name}HP"
+        ] = _rate(
+            hand_denom("contact_count"),
+            hand_denom("swing_count"),
+        )
+
+        additions[
+            f"opponent_{hand_name}_history_games"
+        ] = merged.get(
+            f"prior_games_{hand_name}",
+            pd.Series(
+                np.nan,
+                index=merged.index,
+            ),
+        )
+
+    return pd.concat(
+        [
+            output.reset_index(drop=True),
+            pd.DataFrame(additions),
+        ],
+        axis=1,
+    )
 
 def build_point_in_time_features(
     appearances: pd.DataFrame,
