@@ -17,9 +17,9 @@ REPORTS_DIR = Path(
 )
 
 
-# ---------------------------------------------------------
+# =========================================================
 # COMMAND RUNNER
-# ---------------------------------------------------------
+# =========================================================
 
 
 def run_module(
@@ -49,9 +49,9 @@ def run_module(
     )
 
 
-# ---------------------------------------------------------
+# =========================================================
 # COMPLETED-DATA CUTOFF
-# ---------------------------------------------------------
+# =========================================================
 
 
 def latest_completed_date(
@@ -59,11 +59,10 @@ def latest_completed_date(
 ) -> pd.Timestamp:
     """
     Determine the newest valid completed MLB date available
-    in the processed 2026 starter data.
+    in processed 2026 starter data.
 
     Empty files are ignored.
-
-    Any rows on or after the prediction date are excluded.
+    Prediction-date/future rows are excluded.
     """
 
     latest = None
@@ -115,20 +114,20 @@ def latest_completed_date(
     return latest
 
 
-# ---------------------------------------------------------
-# MARKET-FILE PROTECTION
-# ---------------------------------------------------------
+# =========================================================
+# MARKET FILE
+# =========================================================
 
 
 def market_file_has_entered_lines(
     market_path: Path,
 ) -> bool:
     """
-    Return True if the market input file already contains
-    sportsbook line/price information.
+    Return True when at least one sportsbook market row
+    contains line + over odds + under odds.
 
-    This prevents the daily preparation command from
-    overwriting manually entered sportsbook odds.
+    This prevents daily preparation from overwriting
+    sportsbook prices that have already been entered.
     """
 
     if not market_path.exists():
@@ -159,7 +158,7 @@ def market_file_has_entered_lines(
     if frame.empty:
         return False
 
-    entered = (
+    completed_rows = (
         frame[
             [
                 "line",
@@ -168,169 +167,24 @@ def market_file_has_entered_lines(
             ]
         ]
         .notna()
-        .any(
+        .all(
             axis=1
         )
-        .any()
     )
 
     return bool(
-        entered
+        completed_rows.any()
     )
 
 
-# ---------------------------------------------------------
-# PREPARE DAILY SLATE
-# ---------------------------------------------------------
-
-
-def prepare_slate(
-    date: str,
-) -> None:
-    print()
-    print(
-        f"PREPARING MLB SLATE: {date}"
-    )
-
-    # -----------------------------------------------------
-    # 1. REFRESH YESTERDAY'S COMPLETED STATCAST DATA
-    # -----------------------------------------------------
-
-    run_module(
-        "mlb_quant.live.refresh",
-        [
-            "--date",
-            date,
-        ],
-    )
-
-    # -----------------------------------------------------
-    # 2. FETCH PROBABLE STARTERS
-    # -----------------------------------------------------
-
-    run_module(
-        "mlb_quant.live.schedule",
-        [
-            "--date",
-            date,
-        ],
-    )
-
-    # -----------------------------------------------------
-    # 2. BUILD POINT-IN-TIME FEATURES
-    # -----------------------------------------------------
-
-    run_module(
-        "mlb_quant.live.features",
-        [
-            "--date",
-            date,
-        ],
-    )
-
-    # -----------------------------------------------------
-    # 3. GENERATE PROJECTIONS + DISTRIBUTIONS
-    # -----------------------------------------------------
-
-    run_module(
-        "mlb_quant.live.predict",
-        [
-            "--date",
-            date,
-        ],
-    )
-
-    # -----------------------------------------------------
-    # 4. CREATE MARKET TEMPLATE SAFELY
-    # -----------------------------------------------------
-
-    REPORTS_DIR.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    market_path = (
-        REPORTS_DIR
-        / f"market_input_{date}.csv"
-    )
-
-    if market_file_has_entered_lines(
-        market_path
-    ):
-        print()
-        print("=" * 80)
-        print(
-            "EXISTING SPORTSBOOK LINES DETECTED"
-        )
-        print("=" * 80)
-        print()
-        print(
-            "The existing market input file "
-            "will NOT be overwritten:"
-        )
-        print()
-        print(
-            market_path
-        )
-        print()
-
-    else:
-        run_module(
-            "mlb_quant.live.market_template",
-            [
-                "--date",
-                date,
-            ],
-        )
-
-    # -----------------------------------------------------
-    # COMPLETE
-    # -----------------------------------------------------
-
-    print()
-    print("=" * 80)
-    print(
-        "SLATE PREPARATION COMPLETE"
-    )
-    print("=" * 80)
-    print()
-
-    print(
-        "Market input:"
-    )
-    print(
-        market_path
-    )
-
-    print()
-    print(
-        "After sportsbook lines are available, "
-        "enter them in that CSV."
-    )
-
-    print()
-    print(
-        "Then run:"
-    )
-
-    print()
-
-    print(
-        f"{sys.executable} -u "
-        f"-m mlb_quant.live.daily "
-        f"--date {date} "
-        f"--analyze"
-    )
-
-
-# ---------------------------------------------------------
+# =========================================================
 # ANALYZE SPORTSBOOK BOARD
-# ---------------------------------------------------------
+# =========================================================
 
 
 def analyze_slate(
     date: str,
-    market_file: str | None,
+    market_file: str | None = None,
 ) -> None:
     prediction_date = pd.Timestamp(
         date
@@ -353,9 +207,13 @@ def analyze_slate(
             f"{market_path}"
         )
 
-    # -----------------------------------------------------
-    # DETERMINE REAL DATA CUTOFF AUTOMATICALLY
-    # -----------------------------------------------------
+    if not market_file_has_entered_lines(
+        market_path
+    ):
+        raise RuntimeError(
+            "Market file exists, but no complete "
+            "sportsbook line/price rows were found."
+        )
 
     latest = latest_completed_date(
         prediction_date
@@ -373,9 +231,12 @@ def analyze_slate(
     )
 
     print()
+    print("=" * 80)
     print(
         f"ANALYZING MLB SLATE: {date}"
     )
+    print("=" * 80)
+    print()
 
     print(
         f"Latest completed data: {as_of}"
@@ -390,7 +251,7 @@ def analyze_slate(
     )
 
     # -----------------------------------------------------
-    # 1. MARKET PRICING
+    # MARKET PRICING
     # -----------------------------------------------------
 
     run_module(
@@ -406,7 +267,7 @@ def analyze_slate(
     )
 
     # -----------------------------------------------------
-    # 2. ROBUSTNESS / DECISION LAYER
+    # ROBUST DECISION LAYER
     # -----------------------------------------------------
 
     run_module(
@@ -418,10 +279,6 @@ def analyze_slate(
             as_of,
         ],
     )
-
-    # -----------------------------------------------------
-    # COMPLETE
-    # -----------------------------------------------------
 
     print()
     print("=" * 80)
@@ -458,16 +315,242 @@ def analyze_slate(
     )
 
 
-# ---------------------------------------------------------
+# =========================================================
+# PREPARE DAILY SLATE
+# =========================================================
+
+
+def prepare_slate(
+    date: str,
+) -> None:
+    prediction_date = pd.Timestamp(
+        date
+    ).normalize()
+
+    print()
+    print("=" * 80)
+    print(
+        f"PREPARING MLB SLATE: {date}"
+    )
+    print("=" * 80)
+
+    # -----------------------------------------------------
+    # 1. REFRESH YESTERDAY'S STATCAST DATA
+    # -----------------------------------------------------
+
+    run_module(
+        "mlb_quant.live.refresh",
+        [
+            "--date",
+            date,
+        ],
+    )
+
+    # -----------------------------------------------------
+    # 2. FETCH CURRENT PROBABLE STARTERS
+    # -----------------------------------------------------
+
+    run_module(
+        "mlb_quant.live.schedule",
+        [
+            "--date",
+            date,
+        ],
+    )
+
+    # -----------------------------------------------------
+    # 3. BUILD POINT-IN-TIME FEATURES
+    # -----------------------------------------------------
+
+    run_module(
+        "mlb_quant.live.features",
+        [
+            "--date",
+            date,
+        ],
+    )
+
+    # -----------------------------------------------------
+    # 4. RUN PRODUCTION MODELS + DISTRIBUTIONS
+    # -----------------------------------------------------
+
+    run_module(
+        "mlb_quant.live.predict",
+        [
+            "--date",
+            date,
+        ],
+    )
+
+    # -----------------------------------------------------
+    # 5. DETERMINE CURRENT DATA CUTOFF
+    # -----------------------------------------------------
+
+    latest = latest_completed_date(
+        prediction_date
+    )
+
+    data_age_days = int(
+        (
+            prediction_date
+            - latest
+        ).days
+    )
+
+    print()
+    print(
+        f"Latest valid completed data: "
+        f"{latest.date()}"
+    )
+
+    print(
+        f"Data age: "
+        f"{data_age_days} day(s)"
+    )
+
+    # -----------------------------------------------------
+    # 6. CREATE / PROTECT MARKET INPUT
+    # -----------------------------------------------------
+
+    REPORTS_DIR.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    market_path = (
+        REPORTS_DIR
+        / f"market_input_{date}.csv"
+    )
+
+    has_lines = (
+        market_file_has_entered_lines(
+            market_path
+        )
+    )
+
+    if has_lines:
+        print()
+        print("=" * 80)
+        print(
+            "EXISTING SPORTSBOOK LINES DETECTED"
+        )
+        print("=" * 80)
+        print()
+
+        print(
+            "The existing market input file "
+            "will NOT be overwritten:"
+        )
+
+        print()
+        print(
+            market_path
+        )
+
+    else:
+        run_module(
+            "mlb_quant.live.market_template",
+            [
+                "--date",
+                date,
+            ],
+        )
+
+        # Recheck after template creation.
+        has_lines = (
+            market_file_has_entered_lines(
+                market_path
+            )
+        )
+
+    # -----------------------------------------------------
+    # 7. PREPARATION COMPLETE
+    # -----------------------------------------------------
+
+    print()
+    print("=" * 80)
+    print(
+        "SLATE PREPARATION COMPLETE"
+    )
+    print("=" * 80)
+    print()
+
+    print(
+        "Market input:"
+    )
+
+    print(
+        market_path
+    )
+
+    # -----------------------------------------------------
+    # 8. AUTO-ANALYZE IF ODDS EXIST
+    # -----------------------------------------------------
+
+    if market_file_has_entered_lines(
+        market_path
+    ):
+        print()
+        print(
+            "Sportsbook lines are available."
+        )
+
+        print(
+            "Running market pricing + "
+            "decision analysis automatically..."
+        )
+
+        analyze_slate(
+            date=date,
+            market_file=str(
+                market_path
+            ),
+        )
+
+    else:
+        print()
+        print("=" * 80)
+        print(
+            "WAITING FOR SPORTSBOOK LINES"
+        )
+        print("=" * 80)
+        print()
+
+        print(
+            "No completed sportsbook prices "
+            "are available yet."
+        )
+
+        print()
+        print(
+            "The slate, features, projections, "
+            "and probability distributions are ready."
+        )
+
+        print()
+        print(
+            "Once sportsbook lines are entered, "
+            "rerun the SAME command:"
+        )
+
+        print()
+
+        print(
+            f"{sys.executable} -u "
+            f"-m mlb_quant.live.daily "
+            f"--date {date}"
+        )
+
+
+# =========================================================
 # CLI
-# ---------------------------------------------------------
+# =========================================================
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
-            "Prepare or analyze the daily "
-            "MLB pitcher-prop slate."
+            "Daily MLB pitcher-prop production pipeline."
         )
     )
 
@@ -483,9 +566,8 @@ def main() -> None:
         "--analyze",
         action="store_true",
         help=(
-            "Run sportsbook market pricing and "
-            "decision analysis instead of "
-            "preparing the slate."
+            "Skip slate preparation and run "
+            "market + decision analysis directly."
         ),
     )
 
@@ -501,16 +583,33 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    # Validate date immediately.
+    # -----------------------------------------------------
+    # DATE VALIDATION
+    # -----------------------------------------------------
+
     try:
-        pd.Timestamp(
+        parsed_date = pd.Timestamp(
             args.date
-        )
+        ).normalize()
 
     except Exception as exc:
         raise ValueError(
             "--date must use YYYY-MM-DD format."
         ) from exc
+
+    if (
+        parsed_date.strftime(
+            "%Y-%m-%d"
+        )
+        != args.date
+    ):
+        raise ValueError(
+            "--date must use YYYY-MM-DD format."
+        )
+
+    # -----------------------------------------------------
+    # MODE
+    # -----------------------------------------------------
 
     if args.analyze:
         analyze_slate(
