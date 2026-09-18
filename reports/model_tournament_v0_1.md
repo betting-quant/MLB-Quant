@@ -14,54 +14,54 @@
 ## Walk-forward results
 
 target          model                 
-strikeouts      hist_gradient_boosting     1.803655
-                ensemble                   1.809212
-                poisson                    1.851711
-                ridge                      1.856663
-                decomposed                 1.863957
+strikeouts      hist_gradient_boosting     1.803689
+                ensemble                   1.809261
+                poisson                    1.851584
+                ridge                      1.856651
+                decomposed                 1.863940
                 naive                      1.915830
-batters_faced   hist_gradient_boosting     2.806025
-                ensemble                   2.900540
-outs_recorded   hist_gradient_boosting     2.920872
-                ensemble                   2.971166
+batters_faced   hist_gradient_boosting     2.806021
+                ensemble                   2.900533
+outs_recorded   hist_gradient_boosting     2.920697
+                ensemble                   2.971155
 batters_faced   naive                      3.087212
-                poisson                    3.089787
+                poisson                    3.089855
 outs_recorded   naive                      3.111364
-batters_faced   ridge                      3.115024
-outs_recorded   ridge                      3.118593
-                poisson                    3.130610
-                opportunity_aware          3.156454
-pitches_thrown  hist_gradient_boosting     9.901139
-                ensemble                  10.301380
+batters_faced   ridge                      3.115019
+outs_recorded   ridge                      3.118725
+                poisson                    3.130801
+                opportunity_aware          3.156562
+pitches_thrown  hist_gradient_boosting     9.901140
+                ensemble                  10.301239
                 naive                     10.862900
-                ridge                     11.206564
-                poisson                   11.253589
+                ridge                     11.206440
+                poisson                   11.253867
 
 ## Baseline improvement (%)
 
 {
   "batters_faced": 9.11,
-  "outs_recorded": 6.12,
+  "outs_recorded": 6.13,
   "pitches_thrown": 8.85,
-  "strikeouts": 5.86
+  "strikeouts": 5.85
 }
 
 ## Feature-family ablation
 
 feature_family      full  opponent  pitcher_history    recent  workload
 target                                                                 
-batters_faced   2.806025  2.798914         3.075166  2.798657  2.811371
-outs_recorded   2.920872  2.924040         3.071862  2.924041  2.928723
-pitches_thrown  9.901139  9.913781        11.039997  9.903454  9.876493
-strikeouts      1.803655  1.816055         1.860486  1.816008  1.845065
+batters_faced   2.806021  2.798914         3.075166  2.798657  2.811371
+outs_recorded   2.920697  2.924040         3.071862  2.924041  2.928723
+pitches_thrown  9.901140  9.913781        11.039997  9.903454  9.876493
+strikeouts      1.803689  1.816055         1.860486  1.816008  1.845065
 
 ## 2025 holdout
 
         target                  model      mae      rmse      bias  correlation  poisson_deviance    n
- batters_faced hist_gradient_boosting 2.626470  3.584526  0.048168     0.584626          0.695731 4856
- outs_recorded hist_gradient_boosting 2.758535  3.644440 -0.015857     0.472951          0.986930 4856
-pitches_thrown hist_gradient_boosting 9.045678 12.697560  0.075883     0.617286          2.315033 4856
-    strikeouts hist_gradient_boosting 1.792230  2.259125 -0.066170     0.405513          1.163720 4856
+ batters_faced hist_gradient_boosting 2.626476  3.584528  0.048196     0.584626          0.695732 4856
+ outs_recorded hist_gradient_boosting 2.755862  3.643853 -0.004151     0.473199          0.986712 4856
+pitches_thrown hist_gradient_boosting 9.043843 12.699953  0.108048     0.617017          2.314283 4856
+    strikeouts hist_gradient_boosting 1.793644  2.260710 -0.066601     0.404126          1.165242 4856
 
 ## Controls
 
